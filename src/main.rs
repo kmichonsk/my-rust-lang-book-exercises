@@ -10,13 +10,129 @@ use message::*;
 use rectangle::*;
 use std::cmp::Ordering;
 use std::collections::HashMap;
+use std::fs::File;
 use std::ops::{Div, Rem};
+use std::str::SplitWhitespace;
 
 fn main() {
-    exercise15();
+    exercise16();
+}
+
+fn exercise16() {
+    println!(
+        "largest:\n\t(1,5,3,4,2): {}\n\t(1.0,2.1,4.3,4.012): {}\n\t(1): {}\n\t(a): {}",
+        largest(&[1, 5, 3, 4, 2]),
+        largest(&[1.0, 2.1, 4.3, 4.012]),
+        largest(&[1]),
+        largest(&['a']),
+    );
+}
+
+fn largest<T: PartialOrd>(list: &[T]) -> &T {
+    let mut largest = &list[0];
+
+    for item in list {
+        if item > largest {
+            largest = &item;
+        }
+    }
+
+    largest
 }
 
 fn exercise15() {
+    let f: File = File::open("./target/tmptest").unwrap_or_else(|error| {
+        if error.kind() == std::io::ErrorKind::NotFound {
+            File::create("./target/tmptest").unwrap_or_else(|error| {
+                panic!("Problem creating the file: {:?}", error);
+            })
+        } else {
+            panic!("Problem opening the file: {:?}", error);
+        }
+    });
+}
+
+fn exercise_add_employees() {
+    let mut departments_employees: HashMap<String, Vec<String>> = HashMap::new();
+
+    println!(
+        "\
+Usage
+  add department name
+    Add \"name\" to \"department\"
+  list [department]
+    List all entries or if provided list all entries in the \"department\" 
+   "
+    );
+
+    let mut input = String::with_capacity(512);
+    loop {
+        input.clear();
+        std::io::stdin()
+            .read_line(&mut input)
+            .expect("stdin read error");
+
+        let mut input_iter = input.split_whitespace();
+        match input_iter.next() {
+            Some(option) => match option {
+                "add" => handle_add(&mut departments_employees, input_iter),
+                "list" => handle_list(&mut departments_employees, input_iter),
+                _ => {}
+            },
+            None => {}
+        }
+    }
+}
+
+fn handle_add(
+    departments_employees: &mut HashMap<String, Vec<String>>,
+    mut input: SplitWhitespace,
+) {
+    let department = input.next().expect("Invalid department input");
+    let name = input.next().expect("Invalid name input");
+
+    let department_employees = departments_employees
+        .entry(String::from(department))
+        .or_insert(vec![]);
+    department_employees.push(String::from(name));
+}
+
+fn handle_list(
+    departments_employees: &mut HashMap<String, Vec<String>>,
+    mut input: SplitWhitespace,
+) {
+    match input.next() {
+        None => {
+            dbg!(&departments_employees);
+        }
+        Some(department) => {
+            dbg!(&departments_employees.get(department).unwrap_or(&vec![]));
+        }
+    };
+}
+
+fn exercise_pig_latin() {
+    println!(
+        "pig_latin:\n\t(apple,hay): {}\n\t(apple): {}\n\t(): {}\n\t(ap,,hay): {}",
+        pig_latinize(&vec!["apple", "hay"]),
+        pig_latinize(&vec!["apple"]),
+        pig_latinize(&vec![]),
+        pig_latinize(&vec!["ap", "", "hay"]),
+    );
+}
+
+fn pig_latinize(words: &Vec<&str>) -> String {
+    let mut result = String::new();
+    for (idx, word) in words.iter().enumerate() {
+        result.push_str(word);
+        if idx != words.len() - 1 {
+            result.push('-');
+        }
+    }
+    result
+}
+
+fn exercise_median() {
     // collection's exercises
     // https://doc.rust-lang.org/book/ch08-03-hash-maps.html
     let some_numbers: Vec<i32> = vec![4, 2, 1, 4];
