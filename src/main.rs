@@ -15,8 +15,74 @@ use std::ops::{Div, Rem};
 use std::str::SplitWhitespace;
 
 fn main() {
-    exercise16();
+    exercise17();
 }
+
+fn exercise17() {
+    let string1 = String::from("abcd");
+    let string2 = "xyz";
+
+    let result = longest(string1.as_str(), string2);
+
+    println!("The longest string is {}", result);
+
+    println!();
+    let result = longest_with_an_announcement(
+        string1.as_str(),
+        string2,
+        "See which string is the longest!",
+    );
+    println!("The longest string is {}!", result);
+}
+
+fn longest_with_an_announcement<'a, T>(x: &'a str, y: &'a str, ann: T) -> &'a str
+where
+    T: std::fmt::Display,
+{
+    println!("Announcement! {}", ann);
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
+}
+
+fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
+}
+
+// Cool:
+// // 33 |         y
+// //    |         ^ lifetime `'a` required
+// fn longest<'a>(x: &'a str, y: &str) -> &'a str {
+//     if x.len() > y.len() {
+//         x
+//     } else {
+//         y
+//     }
+// }
+
+// // If we have just one argument this introduces the lifetime
+// // specifier by default. This compiles fine just like the
+// // function "first_word" in the bottom from chapter 4
+// fn longest(x: &str) -> &str {
+//     x
+// }
+// // this will also compile, the borrow checker sees no problem with it
+// fn longest(x: &str) -> &str {
+//     let y: String = String::new();
+//     &x
+// }
+//
+// // this won't
+// fn longest(x: &str) -> &str {
+//     let y: String = String::new();
+//     &y
+// }
 
 fn exercise16() {
     println!(
